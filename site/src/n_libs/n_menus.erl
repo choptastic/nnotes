@@ -6,10 +6,10 @@
 %% Main Menu
 %% ***************************************************
 main_menu() ->
-    [   {"home", {main, "/"}},
-        {"nindex", {main, "/nindex"}},
-        {"nnote" , {main, "/nnote"}},
-        {"Tips & Info", {main, tips}}
+    [   {"home", "/"},
+        {"nindex", "/nindex"},
+        {"nnote" , "/nnote"},
+        {"Tips & Info", tips}
     ].
 
 
@@ -30,7 +30,15 @@ show_main_menu(Selected) ->
 show_main_menu_item(MenuItem, Selected) ->
     {Text, Postback} = MenuItem,
     Class = if_selected(Text, Selected),
-    #link {class=Class, text=Text, postback=Postback}.
+
+    %% Add an exercise:
+    %% Using postbacks that are purely a redirects break expected user
+    %% browser behavior, that's because middle-clicking a postback link
+    %% doesn't open a new tab as a user expects.
+    %% So the exercise is to rework the link generation here to use
+    %% #link{url=URL} instead of a postback
+
+    #link {class=Class, text=Text, delegate=?MODULE, postback=Postback}.
 
 
 if_selected(Text, Selected) ->
@@ -38,6 +46,12 @@ if_selected(Text, Selected) ->
         true -> "mmselected" ;
         false -> "mm"
     end.
+
+event(tips) ->
+    Mod = wf:page_module(),
+    wf:flash(Mod:tips());
+event(URL) ->
+    wf:redirect(URL).
 
 
 %% ***************************************************

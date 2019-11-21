@@ -11,8 +11,11 @@
 -define(MMSELECTED, "home").
 -define(TITLE, "Welcome!").
 -define(TOP, "Build it with Nitrogen").
--define(UVARS, [id, record_type, task]).
 -define(NICKNAME, n_utils:get_nickname()).
+
+selected_menu() -> "home".
+
+url_vars() -> [id, record_type, task].
 
 %% ***************************************************
 %% Template and Title
@@ -27,57 +30,30 @@ title() -> ?TITLE.
 top() -> [ #h1 {text=?TOP} ].
 
 main_menu() ->
-    #panel {body=[
-        #p {id = main_menu}
-    ]}.
-
-sidebar() ->
-    #panel {body=[
-        #p {id = sidebar}
-    ]}.
-content() ->
-    show_page(),
-    #panel {body=[
-        #p {id = content}
-    ]}.
-
-%% ***************************************************
-%% Page state functions
-%% ***************************************************
-get_page_state() ->
-    List = wf:mq(?UVARS),
-    list_to_tuple(List).
-
-show_page() ->
-    PageState = get_page_state(),
-    wf:replace(main_menu, n_menus:show_main_menu(?MMSELECTED)),
-    wf:replace(sidebar, show_sidebar(PageState)),
-    wf:replace(content, show_content(PageState)).
-
+    n_menus:show_main_menu(?MMSELECTED).
 
 %% ***************************************************
 %% Sidebar executives
 %% ***************************************************
-show_sidebar({undefined, undefined, undefined}) ->
-    [ #panel {id = sidebar, body =
-              [ #h3 {text="SELECT"},
-                show_menu("WEB SITE", unselected)
-              ]
-             }].
+sidebar(#{}) ->
+    [
+        #h3 {text="SELECT"},
+        show_side_menu("WEB SITE", unselected)
+    ].
 
 %% ***************************************************
 %% Sidebar functions
 %% ***************************************************
-show_menu(Menu, Selected) ->
+show_side_menu(Menu, Selected) ->
     [ #h4 {class=select, text=Menu},
       [n_menus:show_menu_item(MenuItem, Selected) ||
-       MenuItem <- menu(Menu)]
+       MenuItem <- side_menu(Menu)]
     ].
 
 %% ***************************************************
 %% Sidebar menus
 %% ***************************************************
-menu("WEB SITE") ->
+side_menu("WEB SITE") ->
     [{"nitrogen", {goto,
                    "http://nitrogenproject.com/"}},
      {"erlang", {goto,
@@ -89,7 +65,7 @@ menu("WEB SITE") ->
 %% ***************************************************
 %% Content executives
 %% ***************************************************
-show_content({undefined, undefined, undefined}) ->
+content(#{}) ->
     [ #panel {id = content, body =
               [greeting()]
              }].
@@ -104,26 +80,16 @@ greeting() ->
 %% Tips
 %% ***************************************************
 tips() ->
-    [ #panel {id = content, body =
-              [ #h2 {class="content", text="Tips & Info"},
-                #p {body="The applications in this framework
-                    were developed by Jesse Gumm and
-                    Lloyd R. Prentice for their book
-                 <em>Build it with Nitrogen</em>. These
-                  applications are available for use and
-                  modification under the MIT License."},
-                  #br {},
-                  #button {text = "done", postback = content}
-            ]
-             }].
+    [
+        #h2 {class="content", text="Tips & Info"},
+        #p {body="The applications in this framework
+            were developed by Jesse Gumm and
+            Lloyd R. Prentice for their book
+          <em>Build it with Nitrogen</em>. These
+          applications are available for use and
+          modification under the MIT License."}
+    ].
 
 %% ***************************************************
 %% Main menu events
 %% ***************************************************
-event({main, tips}) ->
-    wf:update(content, tips());
-event({main, logout}) ->
-    wf:clear_user(),
-    wf:redirect("/");
-event({main, Link}) ->
-    wf:redirect(Link).
