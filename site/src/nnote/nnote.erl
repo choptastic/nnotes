@@ -1,5 +1,5 @@
 %% -*- mode: nitrogen -*-
--module (index).
+-module (nnote).
 -behavior(n_apps).
 -compile(export_all).
 -include_lib("nitrogen_core/include/wf.hrl").
@@ -7,9 +7,9 @@
 %% ***************************************************
 %% Macros
 %% ***************************************************
--define(MMSELECTED, "home").
--define(TITLE, "Welcome!").
--define(TOP, "Build it with Nitrogen").
+-define(MMSELECTED, "nnote").
+-define(TITLE, "Welcome to nnote!").
+-define(TOP, "nnote").
 
 url_vars() -> [id, record_type, task].
 
@@ -62,14 +62,65 @@ side_menu("WEB SITE") ->
 %% ***************************************************
 %% Content executives
 %% ***************************************************
-content(#{}) ->
-    greeting().
+content(#{note_type:=undefined, task:=undefined}) ->
+    [content_headline(),
+     #p{class=content, text="Select note type."}
+    ];
+content(#{note_type:=NoteType, task:=Task}) ->
+    Records = case Task of
+        undefined -> undefined;
+        search_by_tag -> tag_search(NoteType);
+        date_search -> date_search(NoteType)
+    end,
+    display_forms(NoteType, Records).
 
-greeting() ->
-    [#h2 {class=content, text=["Welcome to ", n_utils:get_nickname(),
-                               "’s ", "Nitrogen Applications!"]},
-     #p {body = "Our motto: <em>\"Build it Fast with Nitrogen\"</em>"}
+content_headline() ->
+    [#h2 {class=content, text="My Notes"}].
+
+%% ***************************************************
+%% Content
+%% ***************************************************
+display_forms(NoteType, Records) ->
+    [ #panel {id = content, body =
+      [content_headline(),
+       add_note_button(NoteType),
+       search_by_tag(),
+       search_by_date(),
+       search_results(Records)
+      ]}].
+
+search_results(undefined) ->
+    [];
+search_results([]) ->
+    [#hr {},
+     #h2 {class = content, text="Search Results"},
+     #p {text = "No notes found"}
+    ];
+search_results(Records) ->
+    [#hr {},
+     #h2 {class = content, text="Search Results"},
+     [n_utils:draw_link(Record) || Record <- Records]
     ].
+
+
+add_note_button(NoteType) ->
+    ButtonText = ["Enter new ",NoteType," note"],
+    #button {text=ButtonText, postback={add_note, NoteType}}.
+search_by_tag() ->
+    [#label {text="enter search words"},
+     #textbox {id = search_words},
+     #button {text="Search", postback=search_by_tag},
+     #button {text="Info", postback={info, search_by_tag}}
+    ].
+search_by_date() ->
+    io:format("Search by date~n").
+
+
+tag_search(NoteType) ->
+    [].
+
+date_search(NoteType) ->
+    [].
 
 %% ***************************************************
 %% Tips

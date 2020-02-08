@@ -18,11 +18,7 @@ main_menu() ->
 %% ***************************************************
 show_main_menu(Selected) ->
     MenuList = main_menu(),
-    [
-        #panel {id = main_menu, body =
-            [show_main_menu_item(MenuItem, Selected) || MenuItem <- MenuList]
-        }
-    ].
+    [show_main_menu_item(MenuItem, Selected) || MenuItem <- MenuList].
 
 %% ***************************************************
 %% Main Menu Helpers
@@ -38,7 +34,7 @@ show_main_menu_item(MenuItem, Selected) ->
     %% So the exercise is to rework the link generation here to use
     %% #link{url=URL} instead of a postback
 
-    #link {class=Class, text=Text, delegate=?MODULE, postback=Postback}.
+    #link {class=Class, text=Text, postback=Postback, delegate=?MODULE}.
 
 
 if_selected(Text, Selected) ->
@@ -50,6 +46,9 @@ if_selected(Text, Selected) ->
 event(tips) ->
     Mod = wf:page_module(),
     wf:flash(Mod:tips());
+event(logout) ->
+    wf:clear_user(),
+    wf:redirect("/");
 event(URL) ->
     wf:redirect(URL).
 
@@ -61,7 +60,7 @@ show_menu_item(MenuItem, Selected) ->
     {Text, Postback} = MenuItem,
     [#radio{ name=Text,
              text=Text,
-             checked =if_selected(Text, Selected),
+             checked = (Text==Selected),
              value=Text,
              postback=Postback
            },
