@@ -1,5 +1,5 @@
 %% -*- mode: nitrogen -*-
--module (index).
+-module (nindex).
 -behavior(n_apps).
 -compile(export_all).
 -include_lib("nitrogen_core/include/wf.hrl").
@@ -7,8 +7,8 @@
 %% ***************************************************
 %% Macros
 %% ***************************************************
--define(MMSELECTED, "home").
--define(TITLE, "Welcome!").
+-define(MMSELECTED, "nindex").
+-define(TITLE, "").
 -define(TOP, "Build it with Nitrogen").
 
 url_vars() -> [id, record_type, task].
@@ -58,7 +58,6 @@ side_menu("WEB SITE") ->
      {"hacker news", {goto,
                       "https://news.ycombinator.com/"}}
     ].
-
 
 %% ***************************************************
 %% Sidebar events

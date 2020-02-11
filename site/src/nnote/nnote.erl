@@ -11,7 +11,7 @@
 -define(TITLE, "Welcome to nnote!").
 -define(TOP, "nnote").
 
-url_vars() -> [id, record_type, task].
+url_vars() -> [id, note_type, task].
 
 %% ***************************************************
 %% Template and Title
@@ -32,10 +32,10 @@ main_menu() ->
 %% ***************************************************
 %% Sidebar executives
 %% ***************************************************
-sidebar(#{}) ->
+sidebar(#{note_type:=NoteType}) ->
     [
         #h3 {text="SELECT"},
-        show_side_menu("WEB SITE", unselected)
+        show_side_menu("NOTE TYPE", NoteType)
     ].
 
 %% ***************************************************
@@ -50,14 +50,61 @@ show_side_menu(Menu, Selected) ->
 %% ***************************************************
 %% Sidebar menus
 %% ***************************************************
-side_menu("WEB SITE") ->
-    [{"nitrogen", {goto,
-                   "http://nitrogenproject.com/"}},
-     {"erlang", {goto,
-                 "http://erlang.org/doc/apps/stdlib/"}},
-     {"hacker news", {goto,
-                      "https://news.ycombinator.com/"}}
+side_menu("NOTE TYPE") ->
+    [{"conference",{select,"conference"}},
+     {"idea", {select,"idea"}},
+     {"interview", {select,"interview"}},
+     {"lab", {select,"lab"}},
+     {"lecture", {select,"lecture"}},
+     {"research", {select,"research"}},
+     {"web", {select,"web"}}
     ].
+
+%% **************************************************
+%% Sidebar events
+%% **************************************************
+
+event(search_by_tag) ->
+    NoteType = wf:q(note_type),
+    wf:update(content,
+              content(#{note_type=>NoteType, task=>search_by_tag}));
+%% ***************************************************
+%% Info events
+%% ***************************************************
+event({info, Function}) ->
+    wf:flash(info(Function));
+
+event({select, NoteType}) ->
+    Redirect = [wf:path(), "?",
+                wf:to_qs([ {note_type, NoteType} ]) ],
+    wf:redirect(Redirect);
+event(search_by_date) ->
+	NoteType = wf:q(note_type),
+	Content = content(#{note_type=>NoteType, task=>search_by_date}),
+	wf:update(content, Content).
+
+
+
+%% ***************************************************
+%% Info
+%% ***************************************************
+info(search_by_tag) ->
+    [ #h2 {class=content, body =
+           ["<i>Search Words</i>"]
+          },
+      #p {class=content, text=
+          ["Search word documentation goes here"]
+         }
+    ];
+info(search_by_date) ->
+    [ #h2 {class=content, body =
+           ["<i>Search Date</i>"]
+          },
+      #p {class=content, text=
+          ["Search dates documentation goes here"]
+         }
+    ].
+
 
 %% ***************************************************
 %% Content executives
@@ -70,7 +117,7 @@ content(#{note_type:=NoteType, task:=Task}) ->
     Records = case Task of
         undefined -> undefined;
         search_by_tag -> tag_search(NoteType);
-        date_search -> date_search(NoteType)
+        search_by_date -> date_search(NoteType)
     end,
     display_forms(NoteType, Records).
 
@@ -113,8 +160,11 @@ search_by_tag() ->
      #button {text="Info", postback={info, search_by_tag}}
     ].
 search_by_date() ->
-    io:format("Search by date~n").
-
+	[#label {text="enter date"},
+	 n_dates:datepicker(search, ""),
+	 #button {text="Search", postback=search_by_date},
+	 #button {text="Info", postback={info, search_by_date}}
+	].
 
 tag_search(NoteType) ->
     [].

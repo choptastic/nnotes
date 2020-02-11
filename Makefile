@@ -36,7 +36,7 @@ fix-slim-release:
 	@(./fix-slim-release)
 
 DEPS_PLT=$(CURDIR)/.deps_plt
-DEPS=erts kernel stdlib sasl nitrogen_core simple_bridge sync nprocreg
+DEPS=erts kernel stdlib sasl lib/nitrogen_core lib/simple_bridge lib/nprocreg
 
 $(DEPS_PLT):
 	@echo Building local plt at $(DEPS_PLT)
