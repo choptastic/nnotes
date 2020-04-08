@@ -1,5 +1,5 @@
 %% -*- mode: nitrogen -*-
--module (nnote).
+-module (nnote_add_edit).
 -behavior(n_apps).
 -compile(export_all).
 -include_lib("nitrogen_core/include/wf.hrl").
@@ -8,7 +8,7 @@
 %% Macros
 %% ***************************************************
 -define(MMSELECTED, "nnote").
--define(TITLE, "Welcome to nnote!").
+-define(TITLE, "Add/edit Note").
 -define(TOP, "nnote").
 
 url_vars() -> [id, note_type, task].
@@ -81,11 +81,7 @@ event({select, NoteType}) ->
 event(search_by_date) ->
 	NoteType = wf:q(note_type),
 	Content = content(#{note_type=>NoteType, task=>search_by_date}),
-	wf:update(content, Content);
-event({add_note, NoteType}) ->
-    Redirect=["/nnote/add_edit?",
-              wf:to_qs([{id, "new"},{record_type,NoteType}])],
-    wf:redirect(Redirect).
+	wf:update(content, Content).
 
 
 
@@ -113,17 +109,63 @@ info(search_by_date) ->
 %% ***************************************************
 %% Content executives
 %% ***************************************************
-content(#{note_type:=undefined, task:=undefined}) ->
-    [content_headline(),
-     #p{class=content, text="Select note type."}
-    ];
-content(#{note_type:=NoteType, task:=Task}) ->
-    Records = case Task of
-        undefined -> undefined;
-        search_by_tag -> tag_search(NoteType);
-        search_by_date -> date_search(NoteType)
+
+content(#{id:=undefined, note_type:=undefined}) ->
+    #h2{class=content, text="My Notes"};
+content(#{id:=ID, note_type:=NoteType}) ->
+    [
+        content_headline(ID, NoteType),
+        add_edit_form(ID, NoteType)
+    ].
+
+content_headline(ID, NoteType) ->
+    Action = case ID of
+        "new" -> "Enter";
+        _ -> "Edit"
     end,
-    display_forms(NoteType, Records).
+    #h2{class=content, text=[Action, " ",string:titlecase(NoteType)," Note"]}.
+
+add_edit_form("new", NoteType) ->
+    UserID = n_utils:get_user_id(),
+    Date = qdate:to_string("m/d/Y"),
+    form("new", UserID, Date, NoteType, "", "", "", "", "", "");
+add_edit_form(ID, NoteType) ->
+    %% We’ll do more here when we set up editing
+    [].
+
+form(ID, UserID, Date, NoteType, Event, Source, Topic,
+     Question, Tags, Note) ->
+    wf:defer(save_note, topic, #validate{validators=[
+       #is_required{text="Topic required"}]}),
+    wf:defer(save_note, note, #validate{validators=[
+       #is_required{text="Note required"}]}),
+    wf:defer(save_note, event, #validate{validators=[
+       #is_required{text="Event required"}]}),
+    wf:defer(save_note, source, #validate{validators=[
+        #is_required{text="Source required"}]}),
+    [ #label{text="Date"},
+      #textbox{id=date, text=Date},
+      #label{text="Type"},
+      #textbox{id=type, text=NoteType},
+      #label{text="Event"},
+      #textbox{id=event, text=Event},
+      #label{text=Source},
+      #textbox{id=source, text=Source},
+      #label{text="Topic"},
+      #textbox{id=topic, text=Topic},
+      #label{text="Question"},
+      #textbox{id=question, text=Question},
+      #label{text="Search Words"},
+      #textbox{id=tags, text=Tags},
+      #label{text="Note"},
+      #textarea{id=note, text=Note},
+      #br{},
+      #button{id=save_note, text="Submit", postback={save_note}},
+      #button{text="Cancel", postback=cancel}
+    ].
+
+button_text("new") -> "Enter new note";
+button_text(_ID) -> "Submit changes".
 
 content_headline() ->
     [#h2 {class=content, text="My Notes"}].
