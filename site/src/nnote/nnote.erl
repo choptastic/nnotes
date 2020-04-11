@@ -132,13 +132,12 @@ content_headline() ->
 %% Content
 %% ***************************************************
 display_forms(NoteType, Records) ->
-    [ #panel {id = content, body =
-      [content_headline(),
-       add_note_button(NoteType),
-       search_by_tag(),
-       search_by_date(),
-       search_results(Records)
-      ]}].
+    [content_headline(),
+     add_note_button(NoteType),
+     search_by_tag(),
+     search_by_date(),
+     search_results(Records)
+    ].
 
 search_results(undefined) ->
     [];

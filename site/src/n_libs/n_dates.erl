@@ -7,12 +7,12 @@ datepicker(Id, Text) ->
 		id=Id,
 		text=Text,
 		options=[
-			{dateFormat, "mm-dd-yy"},
+			{dateFormat, "yy-mm-dd"},
 			{showButtonPanel, true}
 		]
 	}.
 
 date_span(DateTime, N) ->
-    StartRange = qdate:add_days(-N, DateTime),
-    EndRange = qdate:add_days(N, DateTime),
+    StartRange = qdate:to_date(qdate:add_days(-N, DateTime)),
+    EndRange = qdate:to_date(qdate:add_days(N, DateTime)),
     {StartRange, EndRange}.
