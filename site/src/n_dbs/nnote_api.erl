@@ -45,10 +45,8 @@ get_record(ID) ->
     ?DB:get_record(ID).
 delete(ID) ->
     ?DB:delete(ID).
-populate_record([UserID, Type, Date, Event, Source,
-                 Topic, Question, Tags, Note]) ->
-    ?DB:populate_record([UserID, Type, Date, Event, Source,
-                         Topic, Question, Tags, Note]).
+populate_record(Values) ->
+    ?DB:populate_record(Values).
 get_records_by_type(UserID, Type) ->
     ?DB:get_records_by_type(UserID, Type).
 get_records_by_date(UserID, Type, Date) ->

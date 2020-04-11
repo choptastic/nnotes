@@ -64,24 +64,16 @@ side_menu("NOTE TYPE") ->
 %% Sidebar events
 %% **************************************************
 
-event(search_by_tag) ->
-    NoteType = wf:q(note_type),
-    wf:update(content,
-              content(#{note_type=>NoteType, task=>search_by_tag}));
-%% ***************************************************
-%% Info events
-%% ***************************************************
 event({info, Function}) ->
     wf:flash(info(Function));
 
-event({select, NoteType}) ->
-    Redirect = [wf:path(), "?",
-                wf:to_qs([ {note_type, NoteType} ]) ],
-    wf:redirect(Redirect);
-event(search_by_date) ->
-	NoteType = wf:q(note_type),
-	Content = content(#{note_type=>NoteType, task=>search_by_date}),
-	wf:update(content, Content).
+event({save_note, ID, UserID, NoteType}) ->
+    wf:wire(#confirm{text="Save?",
+                     postback={confirm_save, ID, UserID, NoteType}});
+event({confirm_save, ID, UserID, NoteType}) ->
+    save(ID, UserID, NoteType);
+event(cancel) ->
+    wf:redirect("/nnote").
 
 
 
@@ -127,96 +119,96 @@ content_headline(ID, NoteType) ->
 
 add_edit_form("new", NoteType) ->
     UserID = n_utils:get_user_id(),
-    Date = qdate:to_string("m/d/Y"),
-    form("new", UserID, Date, NoteType, "", "", "", "", "", "");
+    Date = qdate:to_string("Y-m-d"),
+    form("new", UserID, NoteType, Date, "", "", "", "", "", "");
 add_edit_form(ID, NoteType) ->
-    %% We’ll do more here when we set up editing
-    [].
+    Record = nnote_api:get_record(ID),
+    [ID, UserID, NoteType, Date, Event, Source, Topic,
+     Question, Tags, Note] = nnote_api:get_all_values(Record),
+    form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note).
 
-form(ID, UserID, Date, NoteType, Event, Source, Topic,
-     Question, Tags, Note) ->
+form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note) ->
+
+    ShowEvent = show_event(NoteType),
+    ShowSource = show_source(NoteType),
+    ShowQuestion = show_question(NoteType),
+
     wf:defer(save_note, topic, #validate{validators=[
        #is_required{text="Topic required"}]}),
     wf:defer(save_note, note, #validate{validators=[
        #is_required{text="Note required"}]}),
-    wf:defer(save_note, event, #validate{validators=[
-       #is_required{text="Event required"}]}),
-    wf:defer(save_note, source, #validate{validators=[
-        #is_required{text="Source required"}]}),
+    ?WF_IF(ShowEvent, wf:defer(save_note, event, #validate{validators=[
+       #is_required{text="Event required"}]})),
+    ?WF_IF(ShowSource, wf:defer(save_note, source, #validate{validators=[
+        #is_required{text="Source required"}]})),
+
     [ #label{text="Date"},
-      #textbox{id=date, text=Date},
+      #datepicker_textbox{id=date, text=Date},
       #label{text="Type"},
       #textbox{id=type, text=NoteType},
-      #label{text="Event"},
-      #textbox{id=event, text=Event},
-      #label{text=Source},
-      #textbox{id=source, text=Source},
+      #label{text=event_label(NoteType), show_if=ShowEvent},
+      #textbox{id=event, text=Event, show_if=ShowEvent},
+      #label{text=source_label(NoteType), show_if=ShowSource},
+      #textbox{id=source, text=Source, show_if=ShowSource},
       #label{text="Topic"},
       #textbox{id=topic, text=Topic},
-      #label{text="Question"},
-      #textbox{id=question, text=Question},
+      #label{text="Question", show_if=ShowQuestion},
+      #textbox{id=question, text=Question, show_if=ShowQuestion},
       #label{text="Search Words"},
       #textbox{id=tags, text=Tags},
       #label{text="Note"},
       #textarea{id=note, text=Note},
       #br{},
-      #button{id=save_note, text="Submit", postback={save_note}},
+      #button{id=save_note, text="Submit", postback={save_note, ID, UserID, NoteType}},
       #button{text="Cancel", postback=cancel}
     ].
+
 
 button_text("new") -> "Enter new note";
 button_text(_ID) -> "Submit changes".
 
-content_headline() ->
-    [#h2 {class=content, text="My Notes"}].
+event_label("conference") -> "conference";
+event_label("lecture") -> "event";
+event_label(_) -> "".
 
-%% ***************************************************
-%% Content
-%% ***************************************************
-display_forms(NoteType, Records) ->
-    [ #panel {id = content, body =
-      [content_headline(),
-       add_note_button(NoteType),
-       search_by_tag(),
-       search_by_date(),
-       search_results(Records)
-      ]}].
+source_label("conference") -> "speaker";
+source_label("idea") -> "";
+source_label("lab") -> "";
+source_label("lecture") -> "speaker";
+source_label("web") -> "URL";
+source_label(_) -> "source".
 
-search_results(undefined) ->
-    [];
-search_results([]) ->
-    [#hr {},
-     #h2 {class = content, text="Search Results"},
-     #p {text = "No notes found"}
-    ];
-search_results(Records) ->
-    [#hr {},
-     #h2 {class = content, text="Search Results"},
-     [n_utils:draw_link(Record) || Record <- Records]
-    ].
+question_label("conference") -> "";
+question_label("idea") -> "";
+question_label("web") -> "";
+question_label(_) -> "question".
 
+show_event("conference") -> true;
+show_event("lecture") -> true;
+show_event(_) -> false.
 
-add_note_button(NoteType) ->
-    ButtonText = ["Enter new ",NoteType," note"],
-    #button {text=ButtonText, postback={add_note, NoteType}}.
-search_by_tag() ->
-    [#label {text="enter search words"},
-     #textbox {id = search_words},
-     #button {text="Search", postback=search_by_tag},
-     #button {text="Info", postback={info, search_by_tag}}
-    ].
-search_by_date() ->
-	[#label {text="enter date"},
-	 n_dates:datepicker(search, ""),
-	 #button {text="Search", postback=search_by_date},
-	 #button {text="Info", postback={info, search_by_date}}
-	].
+show_source("idea") -> false;
+show_source("lab") -> false;
+show_source(_) -> true.
 
-tag_search(NoteType) ->
-    [].
+show_question("interview") -> true;
+show_question("lab") -> true;
+show_question("lecture") -> true;
+show_question("research") -> true;
+show_question(_) -> false.
 
-date_search(NoteType) ->
-    [].
+save(ID, UserID, NoteType) ->
+    Params = wf:mq([date, event, source, topic, question, tags, note]),
+    Params2 = [UserID, NoteType | Params],
+    Record = nnote_api:populate_record(Params2),
+    Record2 = case ID of
+        "new" -> Record;
+        _ -> nnote_api:id(Record, ID)
+    end,
+    nnote_api:put_record(Record2),
+    Redirect = ["/nnote", "?",
+                wf:to_qs([{note_type, NoteType} ]) ],
+    wf:redirect(Redirect).
 
 %% ***************************************************
 %% Tips

@@ -5,8 +5,8 @@
 %% ---------------------------------------------
 unique_words_from_record(Record) ->
     Values = nnote_api:get_all_values(Record),
-    List = [normalize(Value) || Value <- Values, is_list(Value)],
-    sets:from_list(List).
+    Sets = [unique_words_from_string(Value) || Value <- Values, is_list(Value)],
+    sets:union(Sets).
 
 unique_words_from_string(String) ->
     Normalized = normalize(String),

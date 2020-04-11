@@ -84,7 +84,7 @@ event(search_by_date) ->
 	wf:update(content, Content);
 event({add_note, NoteType}) ->
     Redirect=["/nnote/add_edit?",
-              wf:to_qs([{id, "new"},{record_type,NoteType}])],
+              wf:to_qs([{id, "new"},{note_type,NoteType}])],
     wf:redirect(Redirect).
 
 
@@ -165,16 +165,20 @@ search_by_tag() ->
     ].
 search_by_date() ->
 	[#label {text="enter date"},
-	 n_dates:datepicker(search, ""),
+	 n_dates:datepicker(search_date, ""),
 	 #button {text="Search", postback=search_by_date},
 	 #button {text="Info", postback={info, search_by_date}}
 	].
 
 tag_search(NoteType) ->
-    [].
+    UserID = n_utils:get_user_id(),
+    SearchList = wf:q(search_words),
+    nnote_api:search(UserID, NoteType, SearchList).
 
 date_search(NoteType) ->
-    [].
+    UserID = n_utils:get_user_id(),
+    Date = wf:q(search_date),
+    nnote_api:get_records_by_date(UserID, NoteType, Date).
 
 %% ***************************************************
 %% Tips

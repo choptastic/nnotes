@@ -1,5 +1,6 @@
 -module (n_utils).
 -compile(export_all).
+-include_lib("nitrogen_core/include/wf.hrl").
 
 get_nickname() -> "Marsha".
 
@@ -11,6 +12,31 @@ create_id() ->
     GigaSeconds = Seconds * 1000000000,
     ID = GigaSeconds + Rand,
     integer_to_list(ID, 16).
+
+
+draw_link(Record) ->
+    ID = nnote_api:id(Record),
+    NoteType = nnote_api:type(Record),
+    DateTime = nnote_api:date(Record),
+    Date = qdate:to_string("m/d/Y", DateTime),
+    Topic = nnote_api:topic(Record),
+    EditUrl = ["/nnote/add_edit?",
+               wf:to_qs([{id, ID}, {note_type, NoteType}])],
+    Menuid = wf:temp_id(),
+    [
+        #link {
+            body = [Date, " ", "&#8212;", " ", Topic],
+            click=#toggle{target=Menuid}
+        },
+        #panel{id=Menuid, style="display:none", body=[
+            #link {text="edit", url=EditUrl},
+            " | ",
+            #link {text="delete", postback={delete, ID}}
+        ]},
+        #br{}
+    ].
+
+    
 
 id_created(ID) ->
     IntID = list_to_integer(ID, 16),
@@ -31,7 +57,7 @@ fieldnames_to_params(FieldNames) ->
 to_function_head(FieldList) ->
     FieldNames = field_names(FieldList),
     Params = fieldnames_to_params(FieldNames),
-    lists:flatten(["put_all_values([", Params, "]) ->"]).
+    lists:flatten(["populate_record([", Params, "]) ->"]).
 
 synthesize_populate_record(Record, FieldList) ->
     Head = to_function_head(FieldList),

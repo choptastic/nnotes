@@ -2,8 +2,8 @@
 -record(nnote, {
     id = n_utils:create_id(),
     user_id,
-    date = calendar:universal_time(),
     type,
+    date,
     event,
     source,
     topic,
@@ -91,9 +91,10 @@ delete(Key) ->
     {atomic, Results} = mnesia:transaction(Insert),
     Results.
 
-populate_record([User_id, Date, Type, Event, Source,
+populate_record([User_id, Type, Date, Event, Source,
                  Topic, Question, Tags, Note]) ->
-    #nnote{user_id = User_id,
+    #nnote{
+           user_id = User_id,
            date = Date,
            type = Type,
            event = Event,
@@ -116,12 +117,10 @@ get_records_by_type(UserID, Type) ->
     {atomic, Results} = mnesia:transaction(Query),
     Results.
 
-
 get_records_by_date(UserID, Type, Date) ->
     DateTime = qdate:to_date(Date),
     {FirstDate, LastDate} = n_dates:date_span(DateTime, 7),
-    Query =
-    fun() ->
+    Query = fun() ->
             qlc:eval( qlc:q(
                         [Record || Record <- mnesia:table(?TABLE),
                                    qdate:between(FirstDate, Record#nnote.date, LastDate),
@@ -131,9 +130,9 @@ get_records_by_date(UserID, Type, Date) ->
     end,
     {atomic, Results} = mnesia:transaction(Query),
     Results.
+
 search(UserID, NoteType, SearchList) ->
-    Query =
-    fun() ->
+    Query = fun() ->
             qlc:eval( qlc:q(
                         [Record || Record <- mnesia:table(?TABLE),
                                    Record#nnote.user_id == UserID,
@@ -143,6 +142,7 @@ search(UserID, NoteType, SearchList) ->
     end,
     {atomic, Results} = mnesia:transaction(Query),
     Results.
+
 
 
 id(Record) -> Record#nnote.id.
