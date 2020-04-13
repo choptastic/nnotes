@@ -119,18 +119,24 @@ get_records_by_type(UserID, Type) ->
 
 get_records_by_date(UserID, Type, Date) ->
     DateTime = qdate:to_date(Date),
-    {FirstDate, LastDate} = n_dates:date_span(DateTime, 7),
+    {FirstDate, LastDate} = n_dates:date_span(Date, 7),
+    wf:info("~p=~p",[Date, {UserID, Type, FirstDate, LastDate}]),
     Query = fun() ->
             qlc:eval( qlc:q(
                         [Record || Record <- mnesia:table(?TABLE),
-                                   qdate:between(FirstDate, Record#nnote.date, LastDate),
+                                   between(FirstDate, Record#nnote.date, LastDate)==true,
                                    Record#nnote.user_id == UserID,
-                                   Record#nnote.type >= Type
+                                   Record#nnote.type == Type
                         ]))
     end,
     {atomic, Results} = mnesia:transaction(Query),
     Results.
 
+between(S, X, E) ->
+    wf:info("~p =< ~p =< ~p",[qdate:to_string("Y-m-d", S), X,  qdate:to_string("Y-m-d", E)]),
+    qdate:between(S, X, E).
+
+search(UserID, NoteType, undefined) -> [];
 search(UserID, NoteType, SearchList) ->
     Query = fun() ->
             qlc:eval( qlc:q(

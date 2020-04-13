@@ -66,3 +66,13 @@ show_menu_item(MenuItem, Selected) ->
            },
      #br {}
     ].
+
+note_type_side_menu() ->
+    [{"conference",{select,"conference"}},
+     {"idea", {select,"idea"}},
+     {"interview", {select,"interview"}},
+     {"lab", {select,"lab"}},
+     {"lecture", {select,"lecture"}},
+     {"research", {select,"research"}},
+     {"web", {select,"web"}}
+    ].

@@ -10,7 +10,17 @@ template() ->
 
 get_page_vars() ->
     Vars = ?PAGE:url_vars(),
-    wf:q_map(Vars).
+    lists:foldl(fun(Var, Map) ->
+        {VarName, Value} = get_url_var(Var),
+        maps:put(VarName, Value, Map)
+    end, #{}, Vars).
+
+get_url_var({Var, atom}) ->
+    {Var, wf:to_existing_atom(wf:q(Var))};
+get_url_var({Var, int}) ->
+    {Var, wf:to_integer(wf:q(Var))};
+get_url_var(Var) ->
+    {Var, wf:q(Var)}.
 
 
 main_menu() ->

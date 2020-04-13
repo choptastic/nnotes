@@ -44,21 +44,9 @@ sidebar(#{note_type:=NoteType}) ->
 show_side_menu(Menu, Selected) ->
     [ #h4 {class=select, text=Menu},
       [n_menus:show_menu_item(MenuItem, Selected) ||
-       MenuItem <- side_menu(Menu)]
+       MenuItem <- n_menus:note_type_side_menfgh()]
     ].
 
-%% ***************************************************
-%% Sidebar menus
-%% ***************************************************
-side_menu("NOTE TYPE") ->
-    [{"conference",{select,"conference"}},
-     {"idea", {select,"idea"}},
-     {"interview", {select,"interview"}},
-     {"lab", {select,"lab"}},
-     {"lecture", {select,"lecture"}},
-     {"research", {select,"research"}},
-     {"web", {select,"web"}}
-    ].
 
 %% **************************************************
 %% Sidebar events
@@ -66,6 +54,12 @@ side_menu("NOTE TYPE") ->
 
 event({info, Function}) ->
     wf:flash(info(Function));
+
+
+event({select, NoteType}) ->
+    Redirect = [wf:path(), "?",
+                wf:to_qs([ {id, "new"}, {note_type, NoteType} ]) ],
+    wf:redirect(Redirect);
 
 event({save_note, ID, UserID, NoteType}) ->
     wf:wire(#confirm{text="Save?",
