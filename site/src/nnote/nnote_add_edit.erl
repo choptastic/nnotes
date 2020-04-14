@@ -44,7 +44,7 @@ sidebar(#{note_type:=NoteType}) ->
 show_side_menu(Menu, Selected) ->
     [ #h4 {class=select, text=Menu},
       [n_menus:show_menu_item(MenuItem, Selected) ||
-       MenuItem <- n_menus:note_type_side_menfgh()]
+       MenuItem <- n_menus:note_type_side_menu()]
     ].
 
 
