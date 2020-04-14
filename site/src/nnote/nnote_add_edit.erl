@@ -153,7 +153,7 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note) ->
       #label{text="Note"},
       #textarea{id=note, text=Note},
       #br{},
-      #button{id=save_note, text=button_text(NoteType), postback={save_note, ID, UserID, NoteType}},
+      #button{id=save_note, text=button_text(ID), postback={save_note, ID, UserID, NoteType}},
       #button{text="Cancel", postback=cancel}
     ].
 
