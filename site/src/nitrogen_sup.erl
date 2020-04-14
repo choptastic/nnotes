@@ -22,6 +22,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
+    n_mnesia:one_time(),
     application:load(nitrogen_core),
     application:start(simple_cache),
     application:start(crypto),
