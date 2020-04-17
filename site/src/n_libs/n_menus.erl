@@ -58,7 +58,7 @@ event(URL) ->
 %% ***************************************************
 show_menu_item(MenuItem, Selected) ->
     {Text, Postback} = MenuItem,
-    [#radio{ name=Text,
+    [#radio{ name=side_menu_item,
              text=Text,
              checked = (Text==Selected),
              value=Text,
