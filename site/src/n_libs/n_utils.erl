@@ -22,7 +22,8 @@ draw_link(Record) ->
     EditUrl = ["/nnote/add_edit?",
                wf:to_qs([{id, ID}, {note_type, NoteType}])],
     Menuid = wf:temp_id(),
-    [
+    Wrapperid = wf:temp_id(),
+    #panel{id=Wrapperid, body=[
         #link {
             body = [Date, " ", "&#8212;", " ", Topic],
             click=#toggle{target=Menuid}
@@ -30,10 +31,10 @@ draw_link(Record) ->
         #panel{id=Menuid, style="display:none", body=[
             #link {text="edit", url=EditUrl},
             " | ",
-            #link {text="delete", postback={delete, ID}}
+            #link {text="delete", postback={delete, ID, Wrapperid}}
         ]},
         #br{}
-    ].
+    ]}.
     
 
 id_created(ID) ->
