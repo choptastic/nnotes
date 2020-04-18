@@ -138,8 +138,6 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note) ->
 
     [ #label{text="Date"},
       n_dates:datepicker(date, Date),
-      #label{text="Type"},
-      #textbox{id=type, text=NoteType},
       #label{text=event_label(NoteType), show_if=ShowEvent},
       #textbox{id=event, text=Event, show_if=ShowEvent},
       #label{text=source_label(NoteType), show_if=ShowSource},
