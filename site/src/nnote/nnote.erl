@@ -57,6 +57,13 @@ show_side_menu(Menu, Selected) ->
 event({info, Function}) ->
     wf:flash(info(Function));
 
+event({delete, ID, Wrapperid}) ->
+    wf:wire(#confirm{text="Really delete this note?", postback={confirm_delete, ID, Wrapperid}});
+
+event({confirm_delete, ID, Wrapperid}) ->
+    wf:remove(Wrapperid),
+    nnote_api:delete(ID);
+
 event({select, NoteType}) ->
     Redirect = [wf:path(), "?",
                 wf:to_qs([ {note_type, NoteType} ]) ],
