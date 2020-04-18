@@ -3,11 +3,13 @@
 -compile(export_all).
 
 datepicker(Id, Text) ->
+	Text2 = ?WF_IF(Text=="", "", qdate:to_string("m/d/Y", Text)),
+
 	#datepicker_textbox {
 		id=Id,
-		text=Text,
+		text=Text2,
 		options=[
-			{dateFormat, "yy-mm-dd"},
+			{dateFormat, "mm/dd/yy"},
 			{showButtonPanel, true}
 		]
 	}.
