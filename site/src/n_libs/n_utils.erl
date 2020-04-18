@@ -18,6 +18,7 @@ draw_link(Record) ->
     ID = nnote_api:id(Record),
     NoteType = nnote_api:type(Record),
     Date = nnote_api:date(Record),
+    Date2 = qdate:to_string("m/d/Y", Date),
     Topic = nnote_api:topic(Record),
     EditUrl = ["/nnote/add_edit?",
                wf:to_qs([{id, ID}, {note_type, NoteType}])],
@@ -25,7 +26,7 @@ draw_link(Record) ->
     Wrapperid = wf:temp_id(),
     #panel{id=Wrapperid, body=[
         #link {
-            body = [Date, " ", "&#8212;", " ", Topic],
+            body = [Date2, " ", "&#8212;", " ", Topic],
             click=#toggle{target=Menuid}
         },
         #panel{id=Menuid, style="display:none", body=[

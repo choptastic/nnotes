@@ -113,7 +113,7 @@ content_headline(ID, NoteType) ->
 
 add_edit_form("new", NoteType) ->
     UserID = n_utils:get_user_id(),
-    Date = qdate:to_string("Y-m-d"),
+    Date = qdate:to_string("m/d/Y"),
     form("new", UserID, NoteType, Date, "", "", "", "", "", "");
 add_edit_form(ID, NoteType) ->
     Record = nnote_api:get_record(ID),
