@@ -17,8 +17,7 @@ create_id() ->
 draw_link(Record) ->
     ID = nnote_api:id(Record),
     NoteType = nnote_api:type(Record),
-    DateTime = nnote_api:date(Record),
-    Date = qdate:to_string("m/d/Y", DateTime),
+    Date = nnote_api:date(Record),
     Topic = nnote_api:topic(Record),
     EditUrl = ["/nnote/add_edit?",
                wf:to_qs([{id, ID}, {note_type, NoteType}])],
@@ -36,7 +35,6 @@ draw_link(Record) ->
         ]},
         #br{}
     ]}.
-
     
 
 id_created(ID) ->
