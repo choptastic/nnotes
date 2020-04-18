@@ -93,9 +93,10 @@ delete(Key) ->
 
 populate_record([User_id, Type, Date, Event, Source,
                  Topic, Question, Tags, Note]) ->
+    Date2 = qdate:to_string("Y-m-d", Date),
     #nnote{
            user_id = User_id,
-           date = Date,
+           date = Date2,
            type = Type,
            event = Event,
            source = Source,
