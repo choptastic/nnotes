@@ -11,7 +11,7 @@ create_id() ->
     Seconds = qdate:unixtime(),
     GigaSeconds = Seconds * 1000000000,
     ID = GigaSeconds + Rand,
-    integer_to_list(ID, 16).
+    integer_to_list(ID, 36).
 
 
 draw_link(Record) ->
@@ -39,7 +39,7 @@ draw_link(Record) ->
     
 
 id_created(ID) ->
-    IntID = list_to_integer(ID, 16),
+    IntID = list_to_integer(ID, 36),
     Seconds = IntID div 1000000000,
     qdate:to_date(Seconds).
 
