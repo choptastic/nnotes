@@ -11,7 +11,7 @@
 -define(TITLE, "Add/edit Note").
 -define(TOP, "nnote").
 
-url_vars() -> [id, note_type, task].
+url_vars() -> [id, {note_type, atom}, {task, atom}].
 
 %% ***************************************************
 %% Template and Title
@@ -109,7 +109,8 @@ content_headline(ID, NoteType) ->
         "new" -> "Enter";
         _ -> "Edit"
     end,
-    #h2{class=content, text=[Action, " ",string:titlecase(NoteType)," Note"]}.
+    NoteType2 = wf:to_list(NoteType),
+    #h2{class=content, text=[Action, " ",string:titlecase(NoteType2)," Note"]}.
 
 add_edit_form("new", NoteType) ->
     UserID = n_utils:get_user_id(),
@@ -159,34 +160,34 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note) ->
 button_text("new") -> "Enter new note";
 button_text(_ID) -> "Submit changes".
 
-event_label("conference") -> "conference";
-event_label("lecture") -> "event";
+event_label(conference) -> "conference";
+event_label(lecture) -> "event";
 event_label(_) -> "".
 
-source_label("conference") -> "speaker";
-source_label("idea") -> "";
-source_label("lab") -> "";
-source_label("lecture") -> "speaker";
-source_label("web") -> "URL";
+source_label(conference) -> "speaker";
+source_label(idea) -> "";
+source_label(lab) -> "";
+source_label(lecture) -> "speaker";
+source_label(web) -> "URL";
 source_label(_) -> "source".
 
-question_label("conference") -> "";
-question_label("idea") -> "";
-question_label("web") -> "";
+question_label(conference) -> "";
+question_label(idea) -> "";
+question_label(web) -> "";
 question_label(_) -> "question".
 
-show_event("conference") -> true;
-show_event("lecture") -> true;
+show_event(conference) -> true;
+show_event(lecture) -> true;
 show_event(_) -> false.
 
-show_source("idea") -> false;
-show_source("lab") -> false;
+show_source(idea) -> false;
+show_source(lab) -> false;
 show_source(_) -> true.
 
-show_question("interview") -> true;
-show_question("lab") -> true;
-show_question("lecture") -> true;
-show_question("research") -> true;
+show_question(interview) -> true;
+show_question(lab) -> true;
+show_question(lecture) -> true;
+show_question(research) -> true;
 show_question(_) -> false.
 
 save(ID, UserID, NoteType) ->
