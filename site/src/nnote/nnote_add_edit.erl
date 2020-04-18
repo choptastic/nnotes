@@ -137,7 +137,7 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic, Question, Tags, Note) ->
         #is_required{text="Source required"}]})),
 
     [ #label{text="Date"},
-      #datepicker_textbox{id=date, text=Date},
+      n_dates:datepicker(date, Date),
       #label{text="Type"},
       #textbox{id=type, text=NoteType},
       #label{text=event_label(NoteType), show_if=ShowEvent},
