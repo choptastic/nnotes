@@ -1,11 +1,12 @@
 -module(nnote_api).
 -export([ init_table/0,
           put_record/1,
-          get_all_values/1,
           get_all/0,
+          get_all_values/1,
           get_record/1,
           delete/1,
-          populate_record/1,
+          record_to_map/1,
+          map_to_record/1,
           get_records_by_type/2,
           get_records_by_date/3,
           search/3,
@@ -45,8 +46,10 @@ get_record(ID) ->
     ?DB:get_record(ID).
 delete(ID) ->
     ?DB:delete(ID).
-populate_record(Values) ->
-    ?DB:populate_record(Values).
+map_to_record(Map) ->
+    ?DB:map_to_record(Map).
+record_to_map(Record) ->
+    ?DB:record_to_map(Record).
 get_records_by_type(UserID, Type) ->
     ?DB:get_records_by_type(UserID, Type).
 get_records_by_date(UserID, Type, Date) ->
