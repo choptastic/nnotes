@@ -126,26 +126,27 @@ add_edit_form("new", NoteType) ->
             user_id=>UserID,
             type=>NoteType,
             date=>Date},
-    form(Map);
+    Record = nnote_api:map_to_record(Map),
+    form(Record);
 
 add_edit_form(ID, _NoteType) ->
     Record = nnote_api:get_record(ID),
-    Map = nnote_api:record_to_map(Record),
-    form(Map). 
+    form(Record). 
 
 %% We can only match on the 4 fields we know for sure will be there.
 %% The rest of the fields, we'll get with maps:get/3 (the 3rd argument is
 %% the default value if the field isn't present in the Map).
-form(Map = #{id:=ID,
-       user_id:=UserID,
-       type:=NoteType,
-       date:=Date}) ->
-    Event = maps:get(event, Map, ""),
-    Source = maps:get(source, Map, ""),
-    Question = maps:get(question, Map, ""),
-    Tags = maps:get(tags, Map, ""),
-    Topic = maps:get(topic, Map, ""),
-    Note = maps:get(note, Map, ""),
+form(Record) ->
+    ID = nnote_api:id(Record),
+    UserID = nnote_api:user_id(Record),
+    NoteType = nnote_api:type(Record),
+    Date = nnote_api:date(Record),
+    Event = nnote_api:event(Record),
+    Source = nnote_api:source(Record),
+    Tags = nnote_api:tags(Record),
+    Topic = nnote_api:topic(Record),
+    Question = nnote_api:question(Record),
+    Note = nnote_api:note(Record),
 
     ShowEvent = show_event(NoteType),
     ShowSource = show_source(NoteType),
