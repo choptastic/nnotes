@@ -26,6 +26,7 @@ init([]) ->
     application:load(nitrogen_core),
     application:start(simple_cache),
     application:start(crypto),
+    application:ensure_all_started(erlpass),
     application:start(nprocreg),
     application:start(simple_bridge),
 

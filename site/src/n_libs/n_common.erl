@@ -6,7 +6,23 @@
 -define(TEMPLATE,"./site/templates/n_apps.html").
 
 template() ->
-    #template{file=?TEMPLATE}.
+    Access = get_access(),
+    case can_access(Access) of
+        true -> #template{file=?TEMPLATE};
+        false -> wf:redirect_to_login("/register")
+    end.
+
+get_access() ->
+    case erlang:function_exported(?PAGE, access, 0) of
+        true -> ?PAGE:access();
+        false -> public
+    end.
+
+can_access(public) ->
+    true;
+can_access(private) ->
+    wf:user()=/=undefined.
+
 
 get_page_vars() ->
     Vars = ?PAGE:url_vars(),

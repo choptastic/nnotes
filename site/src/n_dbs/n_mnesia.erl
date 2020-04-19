@@ -7,7 +7,10 @@
         ]).
 
 init_tables() ->
-    nnote_db_mnesia:init_table().
+    erlias:build(nnote_db_mnesia, nnote_api),
+    erlias:build(account_db_mnesia, account_api),
+    nnote_db_mnesia:init_table(),
+    account_db_mnesia:init_table().
 
 one_time() ->
     schema(),
