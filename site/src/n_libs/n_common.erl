@@ -9,7 +9,7 @@ template() ->
     Access = get_access(),
     case can_access(Access) of
         true -> #template{file=?TEMPLATE};
-        false -> wf:redirect_to_login("/register")
+        false -> wf:redirect_to_login("/login")
     end.
 
 get_access() ->
@@ -21,7 +21,7 @@ get_access() ->
 can_access(public) ->
     true;
 can_access(private) ->
-    wf:user()=/=undefined.
+    n_utils:get_user_id()=/=undefined.
 
 
 get_page_vars() ->

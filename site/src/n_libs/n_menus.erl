@@ -9,7 +9,8 @@ main_menu() ->
     [   {"home", "/"},
         {"nindex", "/nindex"},
         {"nnote" , "/nnote"},
-        {"Tips & Info", tips}
+        {"Tips & Info", tips},
+        {"Account", account}
     ].
 
 
@@ -46,9 +47,8 @@ if_selected(Text, Selected) ->
 event(tips) ->
     Mod = wf:page_module(),
     wf:flash(Mod:tips());
-event(logout) ->
-    wf:clear_user(),
-    wf:redirect("/");
+event(account) ->
+    wf:redirect_to_login("/login");
 event(URL) ->
     wf:redirect(URL).
 

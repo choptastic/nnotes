@@ -2,9 +2,9 @@
 -compile(export_all).
 -include_lib("nitrogen_core/include/wf.hrl").
 
-get_nickname() -> "Marsha".
+get_nickname() -> wf:session(username).
 
-get_user_id() -> "123".
+get_user_id() -> wf:user().
 
 create_id() ->
     Rand = rand:uniform(1000000000),
@@ -42,7 +42,6 @@ id_created(ID) ->
     IntID = list_to_integer(ID, 36),
     Seconds = IntID div 1000000000,
     qdate:to_date(Seconds).
-
 
 
 %%% THE BELOW IS DONE FOR CHAPTER 10 HOMEWORK #5
